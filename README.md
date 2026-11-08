@@ -58,6 +58,10 @@ Lsposed-DSHPetAndroidFix/
 ./gradlew assembleDebug
 ```
 
+## 作者
+
+- 原作者 B站主页：[风似乎轻吹过](https://space.bilibili.com/24172282)
+
 ## 参考
 
 - [libxposed API](https://github.com/libxposed/api)
