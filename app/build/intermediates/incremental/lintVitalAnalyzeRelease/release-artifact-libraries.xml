@@ -1,0 +1,28 @@
+<libraries>
+  <library
+      name="androidx.annotation:annotation-jvm:1.11.0@jar"
+      jars="C:\Users\SJ\.gradle\caches\modules-2\files-2.1\androidx.annotation\annotation-jvm\1.11.0\824d64b63e13bcb3068a05d7a706bb92685c1a00\annotation-jvm-1.11.0.jar"
+      resolved="androidx.annotation:annotation-jvm:1.11.0"/>
+  <library
+      name="org.jetbrains.kotlin:kotlin-stdlib:2.2.10@jar"
+      jars="C:\Users\SJ\.gradle\caches\modules-2\files-2.1\org.jetbrains.kotlin\kotlin-stdlib\2.2.10\30de6faa127a4a012db8e71bf1b9c0a99b1402b2\kotlin-stdlib-2.2.10.jar"
+      resolved="org.jetbrains.kotlin:kotlin-stdlib:2.2.10"/>
+  <library
+      name="io.github.libxposed:api:102.0.0@aar"
+      jars="C:\Users\SJ\.gradle\caches\9.8.2\transforms\b99d0a1f2f299608d7c4ee90ad872c4e\transformed\api-102.0.0\jars\classes.jar"
+      resolved="io.github.libxposed:api:102.0.0"
+      provided="true"
+      folder="C:\Users\SJ\.gradle\caches\9.8.2\transforms\b99d0a1f2f299608d7c4ee90ad872c4e\transformed\api-102.0.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="org.jetbrains:annotations:13.0@jar"
+      jars="C:\Users\SJ\.gradle\caches\modules-2\files-2.1\org.jetbrains\annotations\13.0\919f0dfe192fb4e063e7dacadee7f8bb9a2672a9\annotations-13.0.jar"
+      resolved="org.jetbrains:annotations:13.0"/>
+</libraries>

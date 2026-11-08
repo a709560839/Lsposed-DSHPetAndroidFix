@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">大肥鱼桌宠修复</string>
+    <string name="app_xposed_description">修复大肥鱼桌宠(DSH Pet Android)的一些问题</string>
+</resources>

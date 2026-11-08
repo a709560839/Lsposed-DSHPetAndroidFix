@@ -1,0 +1,4 @@
+#Sun Nov 08 15:37:53 CST 2026
+base.0=D\:\\Study\\ASproject\\Lsposed-DSHPetAndroidFix\\app\\build\\intermediates\\dex\\release\\mergeDexRelease\\classes.dex
+path.0=classes.dex
+renamed.0=classes.dex

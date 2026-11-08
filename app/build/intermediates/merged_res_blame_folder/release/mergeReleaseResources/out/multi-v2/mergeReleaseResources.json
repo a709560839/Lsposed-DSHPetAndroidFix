@@ -1,0 +1,48 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.jj.dshpet.app-release-3:/values_values.arsc.flat",
+            "map": [
+                {
+                    "source": "D:\\Study\\ASproject\\Lsposed-DSHPetAndroidFix\\app\\src\\main\\res\\values\\strings.xml",
+                    "from": {
+                        "startLines": "-1,2",
+                        "startColumns": "-1,4",
+                        "startOffsets": "-1,61",
+                        "endColumns": "-1,80",
+                        "endOffsets": "-1,137"
+                    },
+                    "to": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,100",
+                        "endColumns": "44,80",
+                        "endOffsets": "95,176"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "C:\\Users\\SJ\\.gradle\\daemon\\9.8.2\\com.jj.dshpet.app-release-3:\\values_values.arsc.flat",
+            "map": [
+                {
+                    "source": "D:\\Study\\ASproject\\Lsposed-DSHPetAndroidFix\\app\\src\\main\\res\\values\\strings.xml",
+                    "from": {
+                        "startLines": "1,2",
+                        "startColumns": "4,4",
+                        "startOffsets": "16,61",
+                        "endColumns": "44,80",
+                        "endOffsets": "56,137"
+                    },
+                    "to": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,100",
+                        "endColumns": "44,80",
+                        "endOffsets": "95,176"
+                    }
+                }
+            ]
+        }
+    ]
+}

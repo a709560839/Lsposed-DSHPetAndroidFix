@@ -1,0 +1,8 @@
+com.jj.dshpet.app-pngs-0 D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\build\generated\res\pngs\debug
+com.jj.dshpet.app-updated_navigation_xml-1 D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\build\generated\updated_navigation_xml\debug
+com.jj.dshpet.app-packageDebugResources-2 D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\build\intermediates\incremental\debug\packageDebugResources\merged.dir
+com.jj.dshpet.app-packageDebugResources-3 D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
+com.jj.dshpet.app-debug-4 D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\build\intermediates\merged_res\debug\mergeDebugResources
+com.jj.dshpet.app-debug-5 D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\src\debug\res
+com.jj.dshpet.app-main-6 D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\src\main\res
+gradleHome-0 C:\Users\SJ\.gradle

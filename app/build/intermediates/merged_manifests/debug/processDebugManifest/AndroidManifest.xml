@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.jj.dshpet"
+    android:versionCode="10000"
+    android:versionName="1.0.0" >
+
+    <uses-sdk
+        android:minSdkVersion="26"
+        android:targetSdkVersion="37" />
+
+    <application
+        android:allowBackup="true"
+        android:debuggable="true"
+        android:description="@string/app_xposed_description"
+        android:extractNativeLibs="false"
+        android:label="@string/app_name"
+        android:supportsRtl="true" >
+    </application>
+
+</manifest>

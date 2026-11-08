@@ -1,0 +1,39 @@
+-- Merging decision tree log ---
+manifest
+ADDED from D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\src\main\AndroidManifest.xml:2:1-14:12
+INJECTED from D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\src\main\AndroidManifest.xml:2:1-14:12
+INJECTED from D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\src\main\AndroidManifest.xml:2:1-14:12
+INJECTED from D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\src\main\AndroidManifest.xml:2:1-14:12
+	package
+		INJECTED from D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\src\main\AndroidManifest.xml
+	android:versionName
+		INJECTED from D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\src\main\AndroidManifest.xml
+	xmlns:tools
+		ADDED from D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\src\main\AndroidManifest.xml:3:5-51
+	android:versionCode
+		INJECTED from D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\src\main\AndroidManifest.xml
+	xmlns:android
+		ADDED from D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\src\main\AndroidManifest.xml:2:11-69
+application
+ADDED from D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\src\main\AndroidManifest.xml:5:5-12:19
+INJECTED from D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\src\main\AndroidManifest.xml:5:5-12:19
+	android:extractNativeLibs
+		INJECTED from D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\src\main\AndroidManifest.xml
+	android:supportsRtl
+		ADDED from D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\src\main\AndroidManifest.xml:8:9-35
+	android:label
+		ADDED from D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\src\main\AndroidManifest.xml:7:9-41
+	tools:ignore
+		ADDED from D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\src\main\AndroidManifest.xml:10:9-46
+	android:allowBackup
+		ADDED from D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\src\main\AndroidManifest.xml:6:9-35
+	android:description
+		ADDED from D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\src\main\AndroidManifest.xml:9:9-61
+uses-sdk
+INJECTED from D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\src\main\AndroidManifest.xml
+INJECTED from D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\src\main\AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\src\main\AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from D:\Study\ASproject\Lsposed-DSHPetAndroidFix\app\src\main\AndroidManifest.xml
