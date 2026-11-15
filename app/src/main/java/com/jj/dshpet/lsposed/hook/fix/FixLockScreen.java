@@ -1,7 +1,16 @@
 package com.jj.dshpet.lsposed.hook.fix;
 
+import static com.jj.dshpet.lsposed.constant.Constants.CHECK_SCREEN_DELAY_MS;
 import static com.jj.dshpet.lsposed.constant.Constants.CLS_PET_MANAGER;
 import static com.jj.dshpet.lsposed.constant.Constants.CLS_SETTINGS;
+import static com.jj.dshpet.lsposed.constant.Constants.FIELD_FX;
+import static com.jj.dshpet.lsposed.constant.Constants.FIELD_FX_22;
+import static com.jj.dshpet.lsposed.constant.Constants.FIELD_SHOW_ON_AOD;
+import static com.jj.dshpet.lsposed.constant.Constants.KEYGUARD_CHECK_DELAY_MS;
+import static com.jj.dshpet.lsposed.constant.Constants.METHOD_APPLY_SETTINGS;
+import static com.jj.dshpet.lsposed.constant.Constants.METHOD_ATTACH;
+import static com.jj.dshpet.lsposed.constant.Constants.METHOD_DETACH;
+import static com.jj.dshpet.lsposed.constant.Constants.PREF_DSH_PET_SETTINGS;
 import static com.jj.dshpet.lsposed.constant.Constants.SHELVE_DELAY_MS;
 import static com.jj.dshpet.lsposed.constant.Constants.TAG;
 import static com.jj.dshpet.lsposed.utils.ReflectionUtils.getField;
@@ -117,12 +126,12 @@ public class FixLockScreen {
                                                         }
                                                     } catch (Throwable ignored) {
                                                     }
-                                                }, 300L);
+                                                }, KEYGUARD_CHECK_DELAY_MS);
                                             } else {
                                                 // 若此前未收起（息屏<5s 快速点亮/解锁中），切勿在此处立即 shelve！
                                                 // 重新提交 3 秒延迟校验任务：若看一眼锁屏未解锁，3 秒后真正收起；若完成解锁，解锁广播或校验会保持显示
                                                 module.log(Log.INFO, TAG, "[屏幕广播] 锁屏状态下收到亮屏广播，桌宠尚未收起 -> 安排延迟校验检查");
-                                                scheduleShelvePets(pm, c, cl, 3000L, module);
+                                                scheduleShelvePets(pm, c, cl, CHECK_SCREEN_DELAY_MS, module);
                                             }
                                         }
                                     } else if (Intent.ACTION_USER_PRESENT.equals(action)) {
@@ -229,13 +238,13 @@ public class FixLockScreen {
                         }
 
                         // 触发 applySettings()，触发每个 PetWindow.destroy()，彻底从 WindowManager removeView
-                        invokeNoArg(pm, "applySettings");
+                        invokeNoArg(pm, METHOD_APPLY_SETTINGS);
 
                         // 彻底 detach 特效层
-                        Object fx = getField(pm, "f22fx");
-                        if (fx == null) fx = getField(pm, "fx");
+                        Object fx = getField(pm, FIELD_FX_22);
+                        if (fx == null) fx = getField(pm, FIELD_FX);
                         if (fx != null) {
-                            invokeNoArg(fx, "detach");
+                            invokeNoArg(fx, METHOD_DETACH);
                         }
 
                         module.log(Log.INFO, TAG, "[锁屏收起] 所有活跃桌宠已从 WindowManager 彻底卸载移除: " + sSavedActivePetIds);
@@ -281,14 +290,14 @@ public class FixLockScreen {
                     sPetsShelvedForLockscreen = false;
 
                     // 重新 attach 特效层
-                    Object fx = getField(pm, "f22fx");
-                    if (fx == null) fx = getField(pm, "fx");
+                    Object fx = getField(pm, FIELD_FX_22);
+                    if (fx == null) fx = getField(pm, FIELD_FX);
                     if (fx != null) {
-                        invokeNoArg(fx, "attach");
+                        invokeNoArg(fx, METHOD_ATTACH);
                     }
 
                     // 触发 applySettings()，重新通过 addWindow() 创建并挂载桌宠
-                    invokeNoArg(pm, "applySettings");
+                    invokeNoArg(pm, METHOD_APPLY_SETTINGS);
 
                     module.log(Log.INFO, TAG, "[解锁恢复] 此前处于活跃状态的桌宠已全部恢复挂载到 WindowManager");
                 } catch (Throwable t) {
@@ -314,7 +323,7 @@ public class FixLockScreen {
             Class<?> ssClass = Class.forName(CLS_SETTINGS, true, cl);
             Object ss = invokeStaticMethod(ssClass, "get", new Class[]{Context.class}, new Object[]{context});
             if (ss != null) {
-                Boolean val = (Boolean) getField(ss, "showOnAod");
+                Boolean val = (Boolean) getField(ss, FIELD_SHOW_ON_AOD);
                 if (val != null) return val;
             }
         } catch (Throwable ignored) {
@@ -322,8 +331,8 @@ public class FixLockScreen {
 
         try {
             Context appCtx = context.getApplicationContext() != null ? context.getApplicationContext() : context;
-            SharedPreferences sp = appCtx.getSharedPreferences("dsh_pet_settings", Context.MODE_PRIVATE);
-            return sp.getBoolean("showOnAod", false);
+            SharedPreferences sp = appCtx.getSharedPreferences(PREF_DSH_PET_SETTINGS, Context.MODE_PRIVATE);
+            return sp.getBoolean(FIELD_SHOW_ON_AOD, false);
         } catch (Throwable ignored) {
         }
 

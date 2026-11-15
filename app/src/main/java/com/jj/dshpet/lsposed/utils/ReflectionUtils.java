@@ -1,5 +1,7 @@
 package com.jj.dshpet.lsposed.utils;
 
+import static com.jj.dshpet.lsposed.constant.Constants.CLS_APP_CTX;
+
 import android.content.Context;
 
 import java.lang.reflect.Field;
@@ -203,7 +205,7 @@ public class ReflectionUtils {
             }
         }
         try {
-            Class<?> appCtxClass = Class.forName("io.dsh.pet.AppCtx");
+            Class<?> appCtxClass = Class.forName(CLS_APP_CTX);
             Method getMethod = appCtxClass.getMethod("get");
             Object app = getMethod.invoke(null);
             if (app instanceof Context) return (Context) app;

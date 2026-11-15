@@ -8,9 +8,11 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 
+import com.jj.dshpet.lsposed.hook.fix.FixChatActivity;
 import com.jj.dshpet.lsposed.hook.fix.FixLockScreen;
 import com.jj.dshpet.lsposed.hook.fix.FixOrientation;
 import com.jj.dshpet.lsposed.hook.modify.ModifyDoubleTap;
+import com.jj.dshpet.lsposed.hook.modify.ModifyHideOnCall;
 import com.jj.dshpet.lsposed.hook.modify.ModifyLongPress;
 
 import java.lang.reflect.Method;
@@ -21,7 +23,7 @@ import io.github.libxposed.api.XposedModule;
  * DSH Pet Android Fix - LSPosed Module (libxposed API)
  * <p>
  * Target package : io.dsh.pet.ai (大肥鱼桌宠, v1.1.22)
- * 模块入口与主引导类，负责初始化各项 Hook 逻辑（双击、长按、锁屏息屏修复、屏幕旋转重定位等）。
+ * 模块入口与主引导类，负责初始化各项 Hook 逻辑（双击、长按、锁屏息屏修复、屏幕旋转重定位、通话自动收起等）。
  */
 @SuppressLint("PrivateApi")
 public class HookInit extends XposedModule {
@@ -42,14 +44,20 @@ public class HookInit extends XposedModule {
         // 修改长按桌宠的功能
         ModifyLongPress.hook(this, cl);
 
+        // 通话/微信通话收起桌宠（无障碍事件感知）
+        ModifyHideOnCall.hook(this, cl);
+
         // 修复屏幕旋转 Bug 和锁屏界面无法息屏 Bug
         hookPetManager(cl);
+
+        // 修复进入全屏对话界面桌宠消失的问题
+        FixChatActivity.hook(this, cl);
 
         log(Log.INFO, TAG, "=== 所有 Hook 已成功注册 ===");
     }
 
     /**
-     * Hook PetManager 相关方法，注入锁屏拦截与屏幕旋转自适应逻辑
+     * Hook PetManager 相关方法，注入锁屏拦截、屏幕旋转自适应、通话收起逻辑
      */
     private void hookPetManager(ClassLoader cl) {
         try {
@@ -68,6 +76,10 @@ public class HookInit extends XposedModule {
 
                     // 注册硬件级 DisplayListener 与 ComponentCallbacks 屏幕旋转自适应监听
                     FixOrientation.ensureDisplayListener(ctx, cl, this);
+
+                    // 注册通话与微信通话状态观察器
+                    ModifyHideOnCall.ensureCallWatcher(ctx, cl, this);
+
                     return chain.proceed();
                 });
                 log(Log.INFO, TAG, "[PetManager] 已成功 Hook: start(Context, int)");

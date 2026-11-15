@@ -1,11 +1,21 @@
 package com.jj.dshpet.lsposed.config;
 
+import static com.jj.dshpet.lsposed.constant.Constants.MODULE_PKG;
+import static com.jj.dshpet.lsposed.constant.Constants.PROVIDER_EXTRA_DEFAULT;
+import static com.jj.dshpet.lsposed.constant.Constants.PROVIDER_EXTRA_VALUE;
+import static com.jj.dshpet.lsposed.constant.Constants.PROVIDER_METHOD_GET_BOOLEAN;
+import static com.jj.dshpet.lsposed.constant.Constants.TAG_CONFIG;
+
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
+
+import com.jj.dshpet.lsposed.constant.Constants;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -17,26 +27,28 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ConfigManager {
 
-    private static final String TAG = "[DSHPetFix][Config]";
+    private static final String TAG = TAG_CONFIG;
 
     /** Provider 授权标识 */
-    public static final String AUTHORITY = "com.jj.dshpet.provider.config";
-    public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY);
+    public static final String AUTHORITY = Constants.AUTHORITY;
+    public static final Uri CONTENT_URI = Constants.CONTENT_URI;
 
     /** 本地 SharedPreferences 文件名 */
-    public static final String PREF_NAME = "dsh_pet_module_config";
+    public static final String PREF_NAME = Constants.PREF_NAME;
 
     // ---- 配置键名（仅针对交互修改项提供开关，Bug 修复默认强制启用） ----
     /** 双击打开悬浮聊天窗（同时自动开启常驻优化与回复渲染） */
-    public static final String KEY_DOUBLE_TAP_CHAT = "pref_double_tap_chat";
+    public static final String KEY_DOUBLE_TAP_CHAT = Constants.KEY_DOUBLE_TAP_CHAT;
     /** 长按直接打开主聊天页面（ChatActivity） */
-    public static final String KEY_LONG_PRESS_CHAT = "pref_long_press_chat";
+    public static final String KEY_LONG_PRESS_CHAT = Constants.KEY_LONG_PRESS_CHAT;
+    /** 通话时收起桌宠 */
+    public static final String KEY_HIDE_ON_CALL = Constants.KEY_HIDE_ON_CALL;
 
     // ---- 跨进程内存缓存机制（Hook 进程加速） ----
     private static final ConcurrentHashMap<String, Boolean> sCache = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, Long> sCacheTime = new ConcurrentHashMap<>();
     /** 缓存有效期：1500 毫秒 */
-    private static final long CACHE_TTL_MS = 1500L;
+    private static final long CACHE_TTL_MS = Constants.CACHE_TTL_MS;
 
     /**
      * 获取模块本地 SharedPreferences（仅限 UI 进程使用）
@@ -65,7 +77,7 @@ public class ConfigManager {
         if (context == null) return defaultValue;
 
         // 1. 如果在模块自身进程中，直接读取本地 SP
-        if (context.getPackageName().equals("com.jj.dshpet")) {
+        if (context.getPackageName().equals(MODULE_PKG)) {
             return getPrefs(context).getBoolean(key, defaultValue);
         }
 
@@ -80,15 +92,15 @@ public class ConfigManager {
         // 3. 通过 ContentProvider 跨进程查询最新配置
         try {
             Bundle extras = new Bundle();
-            extras.putBoolean("default", defaultValue);
+            extras.putBoolean(PROVIDER_EXTRA_DEFAULT, defaultValue);
             Bundle result = context.getContentResolver().call(
                     CONTENT_URI,
-                    "getBoolean",
+                    PROVIDER_METHOD_GET_BOOLEAN,
                     key,
                     extras
             );
-            if (result != null && result.containsKey("value")) {
-                boolean val = result.getBoolean("value", defaultValue);
+            if (result != null && result.containsKey(PROVIDER_EXTRA_VALUE)) {
+                boolean val = result.getBoolean(PROVIDER_EXTRA_VALUE, defaultValue);
                 sCache.put(key, val);
                 sCacheTime.put(key, now);
                 return val;
@@ -101,7 +113,7 @@ public class ConfigManager {
         return defaultValue;
     }
 
-    // ---- 便捷开关读取方法 ----
+    // ---- 便捷开关读取与控制方法 ----
 
     public static boolean isDoubleTapChatEnabled(Context context) {
         return getBoolean(context, KEY_DOUBLE_TAP_CHAT, true);
@@ -113,5 +125,9 @@ public class ConfigManager {
 
     public static boolean isLongPressChatEnabled(Context context) {
         return getBoolean(context, KEY_LONG_PRESS_CHAT, true);
+    }
+
+    public static boolean isHideOnCallEnabled(Context context) {
+        return getBoolean(context, KEY_HIDE_ON_CALL, true);
     }
 }

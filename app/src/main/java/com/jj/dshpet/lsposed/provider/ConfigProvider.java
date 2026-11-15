@@ -1,5 +1,9 @@
 package com.jj.dshpet.lsposed.provider;
 
+import static com.jj.dshpet.lsposed.constant.Constants.PROVIDER_EXTRA_DEFAULT;
+import static com.jj.dshpet.lsposed.constant.Constants.PROVIDER_EXTRA_VALUE;
+import static com.jj.dshpet.lsposed.constant.Constants.PROVIDER_METHOD_GET_BOOLEAN;
+
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -26,11 +30,11 @@ public class ConfigProvider extends ContentProvider {
     @Nullable
     @Override
     public Bundle call(@NonNull String method, @Nullable String arg, @Nullable Bundle extras) {
-        if ("getBoolean".equals(method) && arg != null && getContext() != null) {
-            boolean def = extras != null && extras.getBoolean("default", true);
+        if (PROVIDER_METHOD_GET_BOOLEAN.equals(method) && arg != null && getContext() != null) {
+            boolean def = extras != null && extras.getBoolean(PROVIDER_EXTRA_DEFAULT, true);
             boolean val = ConfigManager.getPrefs(getContext()).getBoolean(arg, def);
             Bundle response = new Bundle();
-            response.putBoolean("value", val);
+            response.putBoolean(PROVIDER_EXTRA_VALUE, val);
             return response;
         }
         return super.call(method, arg, extras);

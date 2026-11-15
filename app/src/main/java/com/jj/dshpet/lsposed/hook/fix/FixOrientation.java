@@ -1,6 +1,11 @@
 package com.jj.dshpet.lsposed.hook.fix;
 
 import static com.jj.dshpet.lsposed.constant.Constants.CLS_PET_MANAGER;
+import static com.jj.dshpet.lsposed.constant.Constants.FIELD_FX;
+import static com.jj.dshpet.lsposed.constant.Constants.FIELD_FX_22;
+import static com.jj.dshpet.lsposed.constant.Constants.METHOD_ATTACH;
+import static com.jj.dshpet.lsposed.constant.Constants.METHOD_DETACH;
+import static com.jj.dshpet.lsposed.constant.Constants.RELAYOUT_BUBBLE_DELAY_MS;
 import static com.jj.dshpet.lsposed.constant.Constants.TAG;
 import static com.jj.dshpet.lsposed.utils.ReflectionUtils.getField;
 import static com.jj.dshpet.lsposed.utils.ReflectionUtils.getFloatField;
@@ -237,11 +242,11 @@ public class FixOrientation {
         }
 
         // 6. 重附着特效层
-        Object fx = getField(pm, "f22fx");
-        if (fx == null) fx = getField(pm, "fx");
+        Object fx = getField(pm, FIELD_FX_22);
+        if (fx == null) fx = getField(pm, FIELD_FX);
         if (fx != null) {
-            invokeNoArg(fx, "detach");
-            invokeNoArg(fx, "attach");
+            invokeNoArg(fx, METHOD_DETACH);
+            invokeNoArg(fx, METHOD_ATTACH);
         }
     }
 
@@ -282,7 +287,7 @@ public class FixOrientation {
                     }
                 } catch (Throwable ignored) {
                 }
-            }, 200);
+            }, RELAYOUT_BUBBLE_DELAY_MS);
 
         } catch (Throwable t) {
             module.log(Log.WARN, TAG, "[气泡重排] 气泡重新布局发生异常: " + t);

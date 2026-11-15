@@ -1,5 +1,7 @@
 package com.jj.dshpet.lsposed.ui;
 
+import android.content.ComponentName;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.HapticFeedbackConstants;
 
@@ -9,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.jj.dshpet.R;
 import com.jj.dshpet.lsposed.config.ConfigManager;
+import com.jj.dshpet.lsposed.constant.Constants;
 
 /**
  * 模块主设置界面 (Material 3 风格)
@@ -19,6 +22,8 @@ public class MainActivity extends AppCompatActivity {
 
     private MaterialSwitch mSwitchDoubleTap;
     private MaterialSwitch mSwitchLongPress;
+    private MaterialSwitch mSwitchHideIcon;
+    private MaterialSwitch mSwitchHideOnCall;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -33,11 +38,15 @@ public class MainActivity extends AppCompatActivity {
     private void initViews() {
         mSwitchDoubleTap = findViewById(R.id.switch_double_tap);
         mSwitchLongPress = findViewById(R.id.switch_long_press);
+        mSwitchHideIcon = findViewById(R.id.switch_hide_icon);
+        mSwitchHideOnCall = findViewById(R.id.switch_hide_on_call);
     }
 
     private void loadSettings() {
         mSwitchDoubleTap.setChecked(ConfigManager.isDoubleTapChatEnabled(this));
         mSwitchLongPress.setChecked(ConfigManager.isLongPressChatEnabled(this));
+        mSwitchHideIcon.setChecked(isLauncherIconHidden());
+        mSwitchHideOnCall.setChecked(ConfigManager.isHideOnCallEnabled(this));
     }
 
     private void setupListeners() {
@@ -54,5 +63,25 @@ public class MainActivity extends AppCompatActivity {
             ConfigManager.putBoolean(this, ConfigManager.KEY_LONG_PRESS_CHAT, isChecked);
         });
         findViewById(R.id.layout_long_press).setOnClickListener(v -> mSwitchLongPress.toggle());
+
+        // 隐藏桌面图标开关
+        mSwitchHideIcon.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            buttonView.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK);
+        });
+        findViewById(R.id.layout_hide_icon).setOnClickListener(v -> mSwitchHideIcon.toggle());
+
+        // 通话时收起桌宠开关
+        mSwitchHideOnCall.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            buttonView.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK);
+            ConfigManager.putBoolean(this, ConfigManager.KEY_HIDE_ON_CALL, isChecked);
+        });
+        findViewById(R.id.layout_hide_on_call).setOnClickListener(v -> mSwitchHideOnCall.toggle());
+    }
+
+    private boolean isLauncherIconHidden() {
+        ComponentName componentName = new ComponentName(getPackageName(), getPackageName() + Constants.ALIAS_HOME);
+        int state = getPackageManager().getComponentEnabledSetting(componentName);
+        return state == PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
+
     }
 }
