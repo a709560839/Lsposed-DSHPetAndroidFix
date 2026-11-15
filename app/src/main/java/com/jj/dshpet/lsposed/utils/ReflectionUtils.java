@@ -1,5 +1,7 @@
 package com.jj.dshpet.lsposed.utils;
 
+import android.content.Context;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -174,6 +176,38 @@ public class ReflectionUtils {
                 return c.getDeclaredMethod(name, paramTypes);
             } catch (NoSuchMethodException ignored) {
             }
+        }
+        return null;
+    }
+
+    /**
+     * 尝试从对象内部或全局上下文中提取 Context 实例
+     */
+    public static Context getContext(Object obj) {
+        if (obj instanceof Context) return (Context) obj;
+        if (obj != null) {
+            try {
+                Object ctx = getField(obj, "ctx");
+                if (ctx instanceof Context) return (Context) ctx;
+            } catch (Throwable ignored) {
+            }
+            try {
+                Object app = getField(obj, "app");
+                if (app instanceof Context) return (Context) app;
+            } catch (Throwable ignored) {
+            }
+            try {
+                Object hostCtx = getField(obj, "hostCtx");
+                if (hostCtx instanceof Context) return (Context) hostCtx;
+            } catch (Throwable ignored) {
+            }
+        }
+        try {
+            Class<?> appCtxClass = Class.forName("io.dsh.pet.AppCtx");
+            Method getMethod = appCtxClass.getMethod("get");
+            Object app = getMethod.invoke(null);
+            if (app instanceof Context) return (Context) app;
+        } catch (Throwable ignored) {
         }
         return null;
     }

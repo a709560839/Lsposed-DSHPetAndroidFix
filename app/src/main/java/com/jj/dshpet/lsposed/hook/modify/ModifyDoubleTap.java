@@ -5,13 +5,17 @@ import static com.jj.dshpet.lsposed.constant.Constants.CLS_PET_MANAGER;
 import static com.jj.dshpet.lsposed.constant.Constants.CLS_PET_WINDOW;
 import static com.jj.dshpet.lsposed.constant.Constants.TAG;
 import static com.jj.dshpet.lsposed.utils.ReflectionUtils.getBooleanField;
+import static com.jj.dshpet.lsposed.utils.ReflectionUtils.getContext;
 import static com.jj.dshpet.lsposed.utils.ReflectionUtils.getField;
 import static com.jj.dshpet.lsposed.utils.ReflectionUtils.invokeMethod;
 import static com.jj.dshpet.lsposed.utils.ReflectionUtils.invokeNoArg;
 
+import android.content.Context;
 import android.text.Editable;
 import android.util.Log;
 import android.widget.EditText;
+
+import com.jj.dshpet.lsposed.config.ConfigManager;
 
 import java.lang.reflect.Method;
 
@@ -71,6 +75,11 @@ public class ModifyDoubleTap {
 
                 module.hook(m).intercept(chain -> {
                     Object pmObj = chain.getThisObject();
+                    Context ctx = getContext(pmObj);
+
+                    // 检查双击打开悬浮聊天开关
+                    boolean enabled = ConfigManager.isDoubleTapChatEnabled(ctx);
+
                     // 记录 stashed / gameRunning 状态（供 after 判断）
                     boolean stashed = getBooleanField(pmObj, "stashed");
                     boolean gameRunning = getBooleanField(pmObj, "gameRunning");
@@ -78,8 +87,8 @@ public class ModifyDoubleTap {
                     // 执行原始逻辑（播放动画、气泡等）
                     Object result = chain.proceed();
 
-                    // 若未被收起且未在游戏中，打开悬浮聊天窗
-                    if (!stashed && !gameRunning) {
+                    // 若开启了配置且未被收起且未在游戏中，打开悬浮聊天窗
+                    if (enabled && !stashed && !gameRunning) {
                         try {
                             Object petArg = chain.getArg(0);
                             invokeMethod(pmObj, "showFloatingChat", new Class[]{pw}, new Object[]{petArg});
@@ -146,21 +155,24 @@ public class ModifyDoubleTap {
             if (!"send".equals(m.getName()) || m.getParameterTypes().length != 0) continue;
             module.hook(m).intercept(chain -> {
                 Object self = chain.getThisObject();
-                try {
-                    Object input = getField(self, "input");
-                    if (input instanceof EditText) {
-                        Editable text = ((EditText) input).getText();
-                        if (text != null) {
-                            String content = text.toString().trim();
-                            if (!content.isEmpty()) {
-                                invokeMethod(self, "addUser", new Class[]{String.class}, new Object[]{content});
-                                invokeNoArg(self, "showTyping");
-                                module.log(Log.INFO, TAG, "[悬浮聊天发送] 已添加用户消息气泡并显示正在输入动画");
+                Context ctx = getContext(self);
+                if (ConfigManager.isDoubleTapChatEnabled(ctx)) {
+                    try {
+                        Object input = getField(self, "input");
+                        if (input instanceof EditText) {
+                            Editable text = ((EditText) input).getText();
+                            if (text != null) {
+                                String content = text.toString().trim();
+                                if (!content.isEmpty()) {
+                                    invokeMethod(self, "addUser", new Class[]{String.class}, new Object[]{content});
+                                    invokeNoArg(self, "showTyping");
+                                    module.log(Log.INFO, TAG, "[悬浮聊天发送] 已添加用户消息气泡并显示正在输入动画");
+                                }
                             }
                         }
+                    } catch (Throwable t) {
+                        module.log(Log.WARN, TAG, "[悬浮聊天发送] 前置处理异常: " + t);
                     }
-                } catch (Throwable t) {
-                    module.log(Log.WARN, TAG, "[悬浮聊天发送] 前置处理异常: " + t);
                 }
                 return chain.proceed();
             });
@@ -170,18 +182,22 @@ public class ModifyDoubleTap {
     }
 
     /**
-     * 若调用链中有 send() 帧（即"发送后自动关闭"），则跳过 dismiss，
+     * 若调用链中有 send() 帧（即"发送后自动关闭"），且双击悬浮聊天开启，则跳过 dismiss，
      * 保持悬浮聊天窗打开。
      */
     private void hookFcDismiss(Class<?> fcClass) {
         for (Method m : fcClass.getDeclaredMethods()) {
             if (!"dismiss".equals(m.getName()) || m.getParameterTypes().length != 0) continue;
             module.hook(m).intercept(chain -> {
-                // 检查调用栈：是否来自 send()
-                for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
-                    if ("send".equals(e.getMethodName()) && CLS_FLOATING_CHAT.equals(e.getClassName())) {
-                        module.log(Log.INFO, TAG, "[悬浮聊天关闭] 已成功阻止窗口自动关闭（由 send 触发）");
-                        return null;
+                Object self = chain.getThisObject();
+                Context ctx = getContext(self);
+                if (ConfigManager.isDoubleTapChatEnabled(ctx)) {
+                    // 检查调用栈：是否来自 send()
+                    for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
+                        if ("send".equals(e.getMethodName()) && CLS_FLOATING_CHAT.equals(e.getClassName())) {
+                            module.log(Log.INFO, TAG, "[悬浮聊天关闭] 已成功阻止窗口自动关闭（由 send 触发）");
+                            return null;
+                        }
                     }
                 }
                 return chain.proceed();
@@ -207,13 +223,18 @@ public class ModifyDoubleTap {
                 // 先执行原始逻辑（PetWindow 气泡等）
                 Object result = chain.proceed();
 
-                // 再把回复渲染到悬浮聊天窗
+                // 再把回复渲染到悬浮聊天窗（若双击悬浮聊天开启）
                 try {
                     Object self = chain.getThisObject();
                     // listenerImpl 是 PetManager 内部匿名类，持有 PetManager 引用
                     // 字段名通常是 "this$0"
                     Object pmObj = getField(self, "this$0");
                     if (pmObj == null) return result;
+
+                    Context ctx = getContext(pmObj);
+                    if (!ConfigManager.isDoubleTapChatEnabled(ctx)) {
+                        return result;
+                    }
 
                     Object chat = getField(pmObj, "floatingChat");
                     if (chat == null) return result;
@@ -238,14 +259,20 @@ public class ModifyDoubleTap {
      * hook FloatingChat.Listener.onSent()
      * <p>
      * 原始逻辑：让 PetWindow 显示 "收到，让我想想…" 气泡。
-     * 这里完全跳过原始逻辑，防止关闭悬浮窗。
+     * 若双击悬浮聊天开启，完全跳过原始逻辑，防止关闭悬浮窗。
      */
     private void hookListenerOnSent(Class<?> listenerImpl) {
         for (Method m : listenerImpl.getDeclaredMethods()) {
             if (!"onSent".equals(m.getName()) || m.getParameterTypes().length != 0) continue;
             module.hook(m).intercept(chain -> {
-                module.log(Log.INFO, TAG, "[消息发送] 已成功拦截并抑制原版发送气泡行为");
-                return null;  // 跳过原始实现
+                Object self = chain.getThisObject();
+                Object pmObj = getField(self, "this$0");
+                Context ctx = getContext(pmObj);
+                if (ConfigManager.isDoubleTapChatEnabled(ctx)) {
+                    module.log(Log.INFO, TAG, "[消息发送] 已成功拦截并抑制原版发送气泡行为");
+                    return null;  // 跳过原始实现
+                }
+                return chain.proceed();
             });
             module.log(Log.INFO, TAG, "[悬浮聊天监听] 已成功 Hook: onSent()");
             break;

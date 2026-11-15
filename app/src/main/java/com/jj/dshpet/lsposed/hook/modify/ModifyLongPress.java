@@ -2,11 +2,15 @@ package com.jj.dshpet.lsposed.hook.modify;
 
 import static com.jj.dshpet.lsposed.constant.Constants.CLS_PET_WINDOW;
 import static com.jj.dshpet.lsposed.constant.Constants.TAG;
+import static com.jj.dshpet.lsposed.utils.ReflectionUtils.getContext;
 import static com.jj.dshpet.lsposed.utils.ReflectionUtils.getField;
 import static com.jj.dshpet.lsposed.utils.ReflectionUtils.invokeMethod;
 import static com.jj.dshpet.lsposed.utils.ReflectionUtils.invokeNoArg;
 
+import android.content.Context;
 import android.util.Log;
+
+import com.jj.dshpet.lsposed.config.ConfigManager;
 
 import java.lang.reflect.Method;
 
@@ -45,6 +49,11 @@ public class ModifyLongPress {
                 module.hook(m).intercept(chain -> {
                     try {
                         Object pet = chain.getThisObject();
+                        Context ctx = getContext(pet);
+                        if (!ConfigManager.isLongPressChatEnabled(ctx)) {
+                            return chain.proceed();
+                        }
+
                         Object pm = getField(pet, "mgr");
                         if (pm == null) return chain.proceed();
 

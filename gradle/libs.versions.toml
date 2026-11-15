@@ -2,10 +2,14 @@
 agp = "9.4.1"
 xposed-api = "102.0.0"
 annotation = "1.11.0"
+appcompat = "1.7.1"
+material = "1.14.0"
 
 [libraries]
 libxposed-api = { group = "io.github.libxposed", name = "api", version.ref = "xposed-api" }
 annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotation" }
+appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
