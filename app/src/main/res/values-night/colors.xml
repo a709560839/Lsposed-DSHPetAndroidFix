@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 暗色模式下的 CardView 边框色（使用 20% 半透明白色，确保在暗色背景下清晰可见） -->
+    <color name="card_stroke">#33FFFFFF</color>
+    <!-- 暗色模式下的状态芯片颜色适配 -->
+    <color name="status_active">#81C784</color>
+    <color name="status_active_container">#1E3A20</color>
+</resources>
