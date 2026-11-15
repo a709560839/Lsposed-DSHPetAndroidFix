@@ -1,3 +1,0 @@
-com.jj.dshpet
-string app_name
-string app_xposed_description

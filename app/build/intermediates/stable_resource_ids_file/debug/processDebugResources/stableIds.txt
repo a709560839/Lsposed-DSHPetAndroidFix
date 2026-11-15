@@ -1,2 +1,0 @@
-com.jj.dshpet:string/app_xposed_description = 0x7f010001
-com.jj.dshpet:string/app_name = 0x7f010000
