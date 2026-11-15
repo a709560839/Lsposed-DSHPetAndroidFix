@@ -26,8 +26,6 @@ public class ConfigManager {
     // ---- 跨进程内存缓存机制（Hook 进程加速） ----
     private static final ConcurrentHashMap<String, Boolean> sCache = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, Long> sCacheTime = new ConcurrentHashMap<>();
-    /** 缓存有效期：1500 毫秒 */
-    private static final long CACHE_TTL_MS = Constants.CACHE_TTL_MS;
 
     /**
      * 获取模块本地 SharedPreferences（仅限 UI 进程使用）
@@ -63,7 +61,7 @@ public class ConfigManager {
         // 2. 如果在目标应用进程（Hook 进程），先检查本地轻量缓存
         long now = SystemClock.uptimeMillis();
         Long lastTime = sCacheTime.get(key);
-        if (lastTime != null && (now - lastTime) < CACHE_TTL_MS) {
+        if (lastTime != null && (now - lastTime) < Constants.CACHE_TTL_MS) {
             Boolean cached = sCache.get(key);
             if (cached != null) return cached;
         }
