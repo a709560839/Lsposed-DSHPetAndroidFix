@@ -53,35 +53,43 @@ public class MainActivity extends AppCompatActivity {
         // 双击悬浮聊天开关（同时包含常驻及渲染优化）
         mSwitchDoubleTap.setOnCheckedChangeListener((buttonView, isChecked) -> {
             buttonView.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK);
-            ConfigManager.putBoolean(this, ConfigManager.KEY_DOUBLE_TAP_CHAT, isChecked);
+            ConfigManager.putBoolean(this, Constants.KEY_DOUBLE_TAP_CHAT, isChecked);
         });
         findViewById(R.id.layout_double_tap).setOnClickListener(v -> mSwitchDoubleTap.toggle());
 
         // 长按直接打开聊天页面
         mSwitchLongPress.setOnCheckedChangeListener((buttonView, isChecked) -> {
             buttonView.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK);
-            ConfigManager.putBoolean(this, ConfigManager.KEY_LONG_PRESS_CHAT, isChecked);
+            ConfigManager.putBoolean(this, Constants.KEY_LONG_PRESS_CHAT, isChecked);
         });
         findViewById(R.id.layout_long_press).setOnClickListener(v -> mSwitchLongPress.toggle());
 
         // 隐藏桌面图标开关
         mSwitchHideIcon.setOnCheckedChangeListener((buttonView, isChecked) -> {
             buttonView.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK);
+            hideOrShowLauncherIcon(isChecked);
         });
         findViewById(R.id.layout_hide_icon).setOnClickListener(v -> mSwitchHideIcon.toggle());
 
         // 通话时收起桌宠开关
         mSwitchHideOnCall.setOnCheckedChangeListener((buttonView, isChecked) -> {
             buttonView.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK);
-            ConfigManager.putBoolean(this, ConfigManager.KEY_HIDE_ON_CALL, isChecked);
+            ConfigManager.putBoolean(this, Constants.KEY_HIDE_ON_CALL, isChecked);
         });
         findViewById(R.id.layout_hide_on_call).setOnClickListener(v -> mSwitchHideOnCall.toggle());
+    }
+    private void hideOrShowLauncherIcon(boolean isHide) {
+        ComponentName componentName = new ComponentName(getPackageName(), getPackageName() + Constants.ALIAS_HOME);
+        getPackageManager().setComponentEnabledSetting(
+                componentName,
+                isHide ? PackageManager.COMPONENT_ENABLED_STATE_DISABLED : PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                PackageManager.DONT_KILL_APP
+        );
     }
 
     private boolean isLauncherIconHidden() {
         ComponentName componentName = new ComponentName(getPackageName(), getPackageName() + Constants.ALIAS_HOME);
         int state = getPackageManager().getComponentEnabledSetting(componentName);
         return state == PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
-
     }
 }

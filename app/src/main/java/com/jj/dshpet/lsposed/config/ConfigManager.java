@@ -4,13 +4,9 @@ import static com.jj.dshpet.lsposed.constant.Constants.MODULE_PKG;
 import static com.jj.dshpet.lsposed.constant.Constants.PROVIDER_EXTRA_DEFAULT;
 import static com.jj.dshpet.lsposed.constant.Constants.PROVIDER_EXTRA_VALUE;
 import static com.jj.dshpet.lsposed.constant.Constants.PROVIDER_METHOD_GET_BOOLEAN;
-import static com.jj.dshpet.lsposed.constant.Constants.TAG_CONFIG;
 
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
@@ -27,23 +23,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ConfigManager {
 
-    private static final String TAG = TAG_CONFIG;
-
-    /** Provider 授权标识 */
-    public static final String AUTHORITY = Constants.AUTHORITY;
-    public static final Uri CONTENT_URI = Constants.CONTENT_URI;
-
-    /** 本地 SharedPreferences 文件名 */
-    public static final String PREF_NAME = Constants.PREF_NAME;
-
-    // ---- 配置键名（仅针对交互修改项提供开关，Bug 修复默认强制启用） ----
-    /** 双击打开悬浮聊天窗（同时自动开启常驻优化与回复渲染） */
-    public static final String KEY_DOUBLE_TAP_CHAT = Constants.KEY_DOUBLE_TAP_CHAT;
-    /** 长按直接打开主聊天页面（ChatActivity） */
-    public static final String KEY_LONG_PRESS_CHAT = Constants.KEY_LONG_PRESS_CHAT;
-    /** 通话时收起桌宠 */
-    public static final String KEY_HIDE_ON_CALL = Constants.KEY_HIDE_ON_CALL;
-
     // ---- 跨进程内存缓存机制（Hook 进程加速） ----
     private static final ConcurrentHashMap<String, Boolean> sCache = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, Long> sCacheTime = new ConcurrentHashMap<>();
@@ -54,7 +33,7 @@ public class ConfigManager {
      * 获取模块本地 SharedPreferences（仅限 UI 进程使用）
      */
     public static SharedPreferences getPrefs(Context context) {
-        return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        return context.getSharedPreferences(Constants.PREF_NAME, Context.MODE_PRIVATE);
     }
 
     /**
@@ -94,7 +73,7 @@ public class ConfigManager {
             Bundle extras = new Bundle();
             extras.putBoolean(PROVIDER_EXTRA_DEFAULT, defaultValue);
             Bundle result = context.getContentResolver().call(
-                    CONTENT_URI,
+                    Constants.CONTENT_URI,
                     PROVIDER_METHOD_GET_BOOLEAN,
                     key,
                     extras
@@ -106,7 +85,7 @@ public class ConfigManager {
                 return val;
             }
         } catch (Throwable t) {
-            Log.w(TAG, "ContentProvider call failed for " + key + ": " + t);
+            Log.w(Constants.TAG_CONFIG, "ContentProvider call failed for " + key + ": " + t);
         }
 
         // 4. 若跨进程查询未成功，回退到默认值
@@ -116,7 +95,7 @@ public class ConfigManager {
     // ---- 便捷开关读取与控制方法 ----
 
     public static boolean isDoubleTapChatEnabled(Context context) {
-        return getBoolean(context, KEY_DOUBLE_TAP_CHAT, true);
+        return getBoolean(context, Constants.KEY_DOUBLE_TAP_CHAT, true);
     }
 
     public static boolean isKeepChatWindowEnabled(Context context) {
@@ -124,10 +103,10 @@ public class ConfigManager {
     }
 
     public static boolean isLongPressChatEnabled(Context context) {
-        return getBoolean(context, KEY_LONG_PRESS_CHAT, true);
+        return getBoolean(context, Constants.KEY_LONG_PRESS_CHAT, true);
     }
 
     public static boolean isHideOnCallEnabled(Context context) {
-        return getBoolean(context, KEY_HIDE_ON_CALL, true);
+        return getBoolean(context, Constants.KEY_HIDE_ON_CALL, true);
     }
 }
