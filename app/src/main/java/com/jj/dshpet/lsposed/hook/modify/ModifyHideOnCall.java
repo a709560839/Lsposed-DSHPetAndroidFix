@@ -46,7 +46,7 @@ import io.github.libxposed.api.XposedModule;
  * <p>
  * 监听来源：
  * 1. AudioManager 通信模式（MODE_IN_CALL / MODE_IN_COMMUNICATION）：
- *    普通电话、微信语音、微信视频通话均会启用该模式（小窗、后台、全屏全覆盖）；
+ * 普通电话、微信语音、微信视频通话均会启用该模式（小窗、后台、全屏全覆盖）；
  * 2. TelephonyManager 系统电话状态与广播（RINGING / OFFHOOK / IDLE）；
  * 3. PetAccessibilityService 无障碍窗口事件：微信 VoIP 页面弹出时即刻捕获。
  */
@@ -84,7 +84,8 @@ public class ModifyHideOnCall {
         try {
             Class<?> serviceClass = Class.forName("io.dsh.pet.PetAccessibilityService", true, cl);
             for (Method m : serviceClass.getDeclaredMethods()) {
-                if (!"onAccessibilityEvent".equals(m.getName())) continue;
+                if (!"onAccessibilityEvent".equals(m.getName()))
+                    continue;
                 module.hook(m).intercept(chain -> {
                     try {
                         Object event = chain.getArg(0);
@@ -94,7 +95,8 @@ public class ModifyHideOnCall {
                             CharSequence cls = ae.getClassName();
                             if (pkg != null && "com.tencent.mm".equals(pkg.toString())) {
                                 String clsName = cls != null ? cls.toString().toLowerCase() : "";
-                                if (clsName.contains("voip") || clsName.contains("talk") || clsName.contains("videotalk")) {
+                                if (clsName.contains("voip") || clsName.contains("talk")
+                                        || clsName.contains("videotalk")) {
                                     sWechatVoipActive = true;
                                     triggerCheck();
                                 } else if (ae.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
@@ -119,14 +121,17 @@ public class ModifyHideOnCall {
      * 当桌宠启动 (PetManager.start) 时初始化通话状态观察器
      */
     public static void ensureCallWatcher(Context context, ClassLoader cl, XposedModule module) {
-        if (context == null) return;
+        if (context == null)
+            return;
         sAppContext = context.getApplicationContext() != null ? context.getApplicationContext() : context;
         sClassLoader = cl;
         sModule = module;
 
-        if (sWatcherInitialized) return;
+        if (sWatcherInitialized)
+            return;
         synchronized (ModifyHideOnCall.class) {
-            if (sWatcherInitialized) return;
+            if (sWatcherInitialized)
+                return;
 
             // 1. 注册系统广播监听电话状态改变
             try {
@@ -175,7 +180,8 @@ public class ModifyHideOnCall {
      * 核心校验方法：判断当前是否处于系统电话或微信语音/视频通话状态
      */
     public static boolean isCallActive(Context context) {
-        if (context == null) return false;
+        if (context == null)
+            return false;
 
         // 1. 音频模式检测（覆盖微信语音/视频通话、QQ通话及电话）
         try {
@@ -194,7 +200,8 @@ public class ModifyHideOnCall {
             TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
             if (tm != null) {
                 int callState = tm.getCallState();
-                if (callState == TelephonyManager.CALL_STATE_RINGING || callState == TelephonyManager.CALL_STATE_OFFHOOK) {
+                if (callState == TelephonyManager.CALL_STATE_RINGING
+                        || callState == TelephonyManager.CALL_STATE_OFFHOOK) {
                     return true;
                 }
             }
@@ -213,7 +220,8 @@ public class ModifyHideOnCall {
      * 检查当前状态并执行桌宠收起或恢复
      */
     private static void checkAndSyncState() {
-        if (sAppContext == null || sClassLoader == null || sModule == null) return;
+        if (sAppContext == null || sClassLoader == null || sModule == null)
+            return;
 
         // 若用户未开启该功能开关，直接跳过
         if (!ConfigManager.isHideOnCallEnabled(sAppContext)) {
@@ -239,27 +247,34 @@ public class ModifyHideOnCall {
      * 将活跃宠物的 active 设为 false 并执行 applySettings 从 WindowManager 移除
      */
     private static void shelvePetsForCall() {
-        if (sAppContext == null || sClassLoader == null || sModule == null) return;
+        if (sAppContext == null || sClassLoader == null || sModule == null)
+            return;
         Runnable action = () -> {
             synchronized (sSavedActivePetIdsForCall) {
-                if (sPetsShelvedForCall) return; // 已经收起，防止重复执行覆盖记录
+                if (sPetsShelvedForCall)
+                    return; // 已经收起，防止重复执行覆盖记录
                 try {
                     Class<?> pmClass = Class.forName(CLS_PET_MANAGER, true, sClassLoader);
                     Object pm = invokeStaticNoArg(pmClass, "get");
-                    if (pm == null) return;
+                    if (pm == null)
+                        return;
 
                     Class<?> ssClass = Class.forName(CLS_SETTINGS, true, sClassLoader);
-                    Object ss = invokeStaticMethod(ssClass, "get", new Class[]{Context.class}, new Object[]{sAppContext});
-                    if (ss == null) return;
+                    Object ss = invokeStaticMethod(ssClass, "get", new Class[] { Context.class },
+                            new Object[] { sAppContext });
+                    if (ss == null)
+                        return;
 
                     @SuppressWarnings("unchecked")
                     List<Object> pets = (List<Object>) getField(ss, "pets");
-                    if (pets == null || pets.isEmpty()) return;
+                    if (pets == null || pets.isEmpty())
+                        return;
 
                     sSavedActivePetIdsForCall.clear();
                     for (Object pet : pets) {
                         String petId = (String) getField(pet, "id");
-                        if (petId == null) petId = (String) getField(pet, "f43id");
+                        if (petId == null)
+                            petId = (String) getField(pet, "f43id");
                         Boolean active = (Boolean) getField(pet, "active");
                         if (active != null && active && petId != null) {
                             sSavedActivePetIdsForCall.add(petId);
@@ -278,12 +293,14 @@ public class ModifyHideOnCall {
 
                         // 彻底 detach 特效层
                         Object fx = getField(pm, FIELD_FX_22);
-                        if (fx == null) fx = getField(pm, FIELD_FX);
+                        if (fx == null)
+                            fx = getField(pm, FIELD_FX);
                         if (fx != null) {
                             invokeNoArg(fx, METHOD_DETACH);
                         }
 
-                        sModule.log(Log.INFO, TAG, "[通话收起] 检测到通话开始，所有活跃桌宠已从 WindowManager 彻底卸载移除: " + sSavedActivePetIdsForCall);
+                        sModule.log(Log.INFO, TAG,
+                                "[通话收起] 检测到通话开始，所有活跃桌宠已从 WindowManager 彻底卸载移除: " + sSavedActivePetIdsForCall);
 
                         // 启动轮询检查，以便微信通话挂断后第一时间恢复
                         sMainHandler.removeCallbacks(sPollRunnable);
@@ -307,25 +324,31 @@ public class ModifyHideOnCall {
      * 将之前活跃宠物的 active 状态恢复，重新挂载到 WindowManager
      */
     private static void unshelvePetsForCall() {
-        if (sAppContext == null || sClassLoader == null || sModule == null) return;
+        if (sAppContext == null || sClassLoader == null || sModule == null)
+            return;
         Runnable action = () -> {
             synchronized (sSavedActivePetIdsForCall) {
-                if (!sPetsShelvedForCall) return; // 未收起，无需唤醒
+                if (!sPetsShelvedForCall)
+                    return; // 未收起，无需唤醒
                 try {
                     Class<?> pmClass = Class.forName(CLS_PET_MANAGER, true, sClassLoader);
                     Object pm = invokeStaticNoArg(pmClass, "get");
-                    if (pm == null) return;
+                    if (pm == null)
+                        return;
 
                     Class<?> ssClass = Class.forName(CLS_SETTINGS, true, sClassLoader);
-                    Object ss = invokeStaticMethod(ssClass, "get", new Class[]{Context.class}, new Object[]{sAppContext});
-                    if (ss == null) return;
+                    Object ss = invokeStaticMethod(ssClass, "get", new Class[] { Context.class },
+                            new Object[] { sAppContext });
+                    if (ss == null)
+                        return;
 
                     @SuppressWarnings("unchecked")
                     List<Object> pets = (List<Object>) getField(ss, "pets");
                     if (pets != null && !sSavedActivePetIdsForCall.isEmpty()) {
                         for (Object pet : pets) {
                             String petId = (String) getField(pet, "id");
-                            if (petId == null) petId = (String) getField(pet, "f43id");
+                            if (petId == null)
+                                petId = (String) getField(pet, "f43id");
                             if (petId != null && sSavedActivePetIdsForCall.contains(petId)) {
                                 setBooleanField(pet, "active", true);
                             }
@@ -338,7 +361,8 @@ public class ModifyHideOnCall {
 
                     // 重新 attach 特效层
                     Object fx = getField(pm, FIELD_FX_22);
-                    if (fx == null) fx = getField(pm, FIELD_FX);
+                    if (fx == null)
+                        fx = getField(pm, FIELD_FX);
                     if (fx != null) {
                         invokeNoArg(fx, METHOD_ATTACH);
                     }
