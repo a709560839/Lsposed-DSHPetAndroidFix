@@ -28,6 +28,8 @@ public class Constants {
     public static final String PREF_NAME = "dsh_pet_module_config";
     /** 宿主应用 SharedPreferences 文件名 */
     public static final String PREF_DSH_PET_SETTINGS = "dsh_pet_settings";
+    /** 宿主进程内部本地持久化缓存文件名（防模块停止运行配置丢失） */
+    public static final String HOST_LOCAL_PREF = "dsh_pet_lsposed_host_cache";
 
     /** 配置键名：双击打开悬浮聊天窗 */
     public static final String KEY_DOUBLE_TAP_CHAT = "pref_double_tap_chat";

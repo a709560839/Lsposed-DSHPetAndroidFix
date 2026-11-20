@@ -1,5 +1,6 @@
 package com.jj.dshpet.lsposed.config;
 
+import static com.jj.dshpet.lsposed.constant.Constants.HOST_LOCAL_PREF;
 import static com.jj.dshpet.lsposed.constant.Constants.MODULE_PKG;
 import static com.jj.dshpet.lsposed.constant.Constants.PROVIDER_EXTRA_DEFAULT;
 import static com.jj.dshpet.lsposed.constant.Constants.PROVIDER_EXTRA_VALUE;
@@ -19,7 +20,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * 模块全局配置管理器
  * <p>
  * 统一管理 UI 设置界面与 Hook 进程之间的配置存取，
- * Hook 端通过 ContentProvider 跨进程实时读取，并带有内存缓存加速。
+ * Hook 端通过 ContentProvider 跨进程实时读取，并带有宿主本地持久化与内存缓存加速。
+ * 即使模块应用被系统强行停止运行或杀后台，宿主也能通过本地持久化保证用户配置永不失效。
  */
 public class ConfigManager {
 
@@ -32,6 +34,18 @@ public class ConfigManager {
      */
     public static SharedPreferences getPrefs(Context context) {
         return context.getSharedPreferences(Constants.PREF_NAME, Context.MODE_PRIVATE);
+    }
+
+    /**
+     * 获取宿主进程内部的本地持久化 SharedPreferences（Hook 进程使用）
+     */
+    private static SharedPreferences getHostLocalPrefs(Context context) {
+        try {
+            Context appCtx = context.getApplicationContext() != null ? context.getApplicationContext() : context;
+            return appCtx.getSharedPreferences(HOST_LOCAL_PREF, Context.MODE_PRIVATE);
+        } catch (Throwable t) {
+            return null;
+        }
     }
 
     /**
@@ -53,7 +67,7 @@ public class ConfigManager {
     public static boolean getBoolean(Context context, String key, boolean defaultValue) {
         if (context == null) return defaultValue;
 
-        // 1. 如果在模块自身进程中，直接读取本地 SP
+        // 1. 如果在模块自身进程中，直接读取模块本地 SP
         if (context.getPackageName().equals(MODULE_PKG)) {
             return getPrefs(context).getBoolean(key, defaultValue);
         }
@@ -80,14 +94,42 @@ public class ConfigManager {
                 boolean val = result.getBoolean(PROVIDER_EXTRA_VALUE, defaultValue);
                 sCache.put(key, val);
                 sCacheTime.put(key, now);
+                // 成功从 ContentProvider 读取后，立即持久化保存到宿主本地，防止模块停止后配置丢失
+                saveToHostLocal(context, key, val);
                 return val;
             }
         } catch (Throwable t) {
             Log.w(Constants.TAG_CONFIG, "ContentProvider call failed for " + key + ": " + t);
         }
 
-        // 4. 若跨进程查询未成功，回退到默认值
+        // 4. 若跨进程查询未成功（例如模块应用被强行停止运行/未启动）：
+        // (1) 优先从内存已有的缓存中获取（如果此前已成功读取过）
+        Boolean oldCached = sCache.get(key);
+        if (oldCached != null) {
+            return oldCached;
+        }
+
+        // (2) 优先从宿主本地持久化存储中读取上一次成功保存的用户真实配置
+        SharedPreferences hostSp = getHostLocalPrefs(context);
+        if (hostSp != null && hostSp.contains(key)) {
+            boolean localVal = hostSp.getBoolean(key, defaultValue);
+            sCache.put(key, localVal);
+            sCacheTime.put(key, now);
+            return localVal;
+        }
+
+        // (3) 若宿主本地也无历史记录，回退到默认值
         return defaultValue;
+    }
+
+    private static void saveToHostLocal(Context context, String key, boolean value) {
+        try {
+            SharedPreferences hostSp = getHostLocalPrefs(context);
+            if (hostSp != null) {
+                hostSp.edit().putBoolean(key, value).apply();
+            }
+        } catch (Throwable ignored) {
+        }
     }
 
     // ---- 便捷开关读取与控制方法 ----
