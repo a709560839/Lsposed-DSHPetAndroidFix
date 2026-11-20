@@ -11,6 +11,7 @@ import android.util.Log;
 import com.jj.dshpet.lsposed.hook.fix.FixChatActivity;
 import com.jj.dshpet.lsposed.hook.fix.FixLockScreen;
 import com.jj.dshpet.lsposed.hook.fix.FixOrientation;
+import com.jj.dshpet.lsposed.hook.modify.ModifyAutoMove;
 import com.jj.dshpet.lsposed.hook.modify.ModifyDoubleTap;
 import com.jj.dshpet.lsposed.hook.modify.ModifyHideOnCall;
 import com.jj.dshpet.lsposed.hook.modify.ModifyLongPress;
@@ -46,6 +47,9 @@ public class HookInit extends XposedModule {
 
         // 通话/微信通话收起桌宠（无障碍事件感知）
         ModifyHideOnCall.hook(this, cl);
+
+        // 控制桌宠是否自动移动
+        ModifyAutoMove.hook(this, cl);
 
         // 修复屏幕旋转 Bug 和锁屏界面无法息屏 Bug
         hookPetManager(cl);

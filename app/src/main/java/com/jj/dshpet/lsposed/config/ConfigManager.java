@@ -107,4 +107,8 @@ public class ConfigManager {
     public static boolean isHideOnCallEnabled(Context context) {
         return getBoolean(context, Constants.KEY_HIDE_ON_CALL, true);
     }
+
+    public static boolean isDisableAutoMoveEnabled(Context context) {
+        return getBoolean(context, Constants.KEY_DISABLE_AUTO_MOVE, false);
+    }
 }

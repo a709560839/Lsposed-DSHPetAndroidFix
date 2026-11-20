@@ -37,6 +37,8 @@ public class Constants {
     public static final String KEY_HIDE_ICON = "pref_hide_icon";
     /** 配置键名：通话时收起桌宠（含系统电话与微信通话） */
     public static final String KEY_HIDE_ON_CALL = "pref_hide_on_call";
+    /** 配置键名：禁止桌宠自动移动（开启后禁止自动漫游，不开启保持原版行为，不影响手动拖拽） */
+    public static final String KEY_DISABLE_AUTO_MOVE = "pref_disable_auto_move";
 
     /** 桌面 Launcher 入口别名名称 */
     public static final String ALIAS_HOME = ".Home";

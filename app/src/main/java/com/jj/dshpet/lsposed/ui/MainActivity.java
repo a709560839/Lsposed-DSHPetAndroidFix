@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
     private MaterialSwitch mSwitchLongPress;
     private MaterialSwitch mSwitchHideIcon;
     private MaterialSwitch mSwitchHideOnCall;
+    private MaterialSwitch mSwitchAutoMove;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
         mSwitchLongPress = findViewById(R.id.switch_long_press);
         mSwitchHideIcon = findViewById(R.id.switch_hide_icon);
         mSwitchHideOnCall = findViewById(R.id.switch_hide_on_call);
+        mSwitchAutoMove = findViewById(R.id.switch_auto_move);
     }
 
     private void loadSettings() {
@@ -47,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
         mSwitchLongPress.setChecked(ConfigManager.isLongPressChatEnabled(this));
         mSwitchHideIcon.setChecked(isLauncherIconHidden());
         mSwitchHideOnCall.setChecked(ConfigManager.isHideOnCallEnabled(this));
+        mSwitchAutoMove.setChecked(ConfigManager.isDisableAutoMoveEnabled(this));
     }
 
     private void setupListeners() {
@@ -77,6 +80,13 @@ public class MainActivity extends AppCompatActivity {
             ConfigManager.putBoolean(this, Constants.KEY_HIDE_ON_CALL, isChecked);
         });
         findViewById(R.id.layout_hide_on_call).setOnClickListener(v -> mSwitchHideOnCall.toggle());
+
+        // 禁止桌宠自动移动开关
+        mSwitchAutoMove.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            buttonView.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK);
+            ConfigManager.putBoolean(this, Constants.KEY_DISABLE_AUTO_MOVE, isChecked);
+        });
+        findViewById(R.id.layout_auto_move).setOnClickListener(v -> mSwitchAutoMove.toggle());
     }
     private void hideOrShowLauncherIcon(boolean isHide) {
         ComponentName componentName = new ComponentName(getPackageName(), getPackageName() + Constants.ALIAS_HOME);
